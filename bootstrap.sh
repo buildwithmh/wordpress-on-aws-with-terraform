@@ -1,9 +1,6 @@
 #!/bin/bash
 
 WEBSITE='hajr.io'
-DB_NAME='hajrDB'
-DB_USER='hajr'
-DB_PASS='1234567'
 
 yum update -y
 yum module install php nginx mariadb -y
@@ -20,6 +17,7 @@ find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
 chown -R nginx:nginx wp-content
 
+#Creating the wp-config.php file
 SALTS=`curl https://api.wordpress.org/secret-key/1.1/salt/`
 
 cat <<EOF > ./wp-config.php
@@ -33,13 +31,17 @@ define( 'DB_COLLATE', '' );
 
 $SALTS
 
-$table_prefix = 'wp_';
+\$table_prefix = 'wp_';
 define( 'WP_DEBUG', false );
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
 require_once ABSPATH . 'wp-settings.php';
 EOF
+
+#adding Nginx configuration
+curl https://raw.githubusercontent.com/MohamedHajr/AWS-Wordrpess-Portflio-Automation/master/hajr.io.conf -o /etc/nginx/conf.d/hajr.io.conf
+curl https://raw.githubusercontent.com/MohamedHajr/AWS-Wordrpess-Portflio-Automation/master/nginx.conf > /etc/nginx/nginx.conf
 
 #Spining everything
 systemctl enable --now nginx php-fpm mariadb
