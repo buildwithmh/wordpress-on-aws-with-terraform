@@ -1,22 +1,21 @@
 #!/bin/bash
-
-shopt -s expand_aliases
-alias rand='openssl rand -base64 16'
-
-
+website='hajr.io'
 evn="dev"
 region="eu-west-3"
 
+shopt -s expand_aliases
+alias rand=$(openssl rand -base64 16)
+
 #Keys 
-db_host="/hajr.io/$env/db-server/host"
-db_name="/hajr.io/$env/db-server/name"
-db_username="/hajr.io/$env/db-server/username"
-db_password="/hajr.io/$env/db-server/password"
+db_host="/$website/$env/db-server/host"
+db_name="/$website/$env/db-server/name"
+db_username="/$website/$env/db-server/username"
+db_password="/$website/$env/db-server/password"
 
 
 aws ssm put-parameter \
     --name $db_name \
-    --value "wp_db" \
+    --value `rand` \
     --type String \
     --tags "Key=env,Value=$env" \
     --region $region
