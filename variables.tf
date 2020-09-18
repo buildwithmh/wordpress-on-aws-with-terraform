@@ -3,6 +3,19 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
-variable "sg_ports" {
-  type = list(number)
+variable "sg_ingress_ports" {
+  type        = list(number)
+  description = "Security groups ports to be configured"
 }
+
+variable "public_key_name" {
+  type        = string
+  description = "SSH public key name for the AWS key pair"
+}
+
+variable "public_key_path" {
+  type        = string
+  description = "The path on the local machine for the SSH public key"
+}
+
+
