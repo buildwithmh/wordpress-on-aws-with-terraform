@@ -18,4 +18,12 @@ variable "public_key_path" {
   description = "The path on the local machine for the SSH public key"
 }
 
+variable "wp_admin_email" {
+  type        = string
+  description = "Wordpress Admin email address"
+}
 
+variable "env" {
+  type        = string
+  description = "current enviroment pod, dev etc.."
+}

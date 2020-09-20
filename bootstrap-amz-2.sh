@@ -1,13 +1,7 @@
 #!/bin/bash
 
-website='hajr.io'
 region="eu-west-3"
-path="/$website/dev/db-server"
-#database credentials
-password=''
-username=''
-name=''
-
+site_url=$(curl "http://169.254.169.254/latest/meta-data/public-ipv4")
 
 #Update and install LEMP stack packages and dependencies for WordPress
 function installPackages {
@@ -20,8 +14,8 @@ function installPackages {
 function installWordPress {
     echo "Installing WordPress...."
 
-    mkdir /usr/share/nginx/$website
-    cd /usr/share/nginx/$website
+    mkdir /usr/share/nginx/wordpress
+    cd /usr/share/nginx/wordpress
     curl https://wordpress.org/latest.tar.gz -o ./latest.tar.gz
     tar -xzvf ./latest.tar.gz
     cp -r wordpress/* .
@@ -40,29 +34,20 @@ function configuringNginx {
     curl "$github_raw_url/nginx.conf" > /etc/nginx/nginx.conf
 }
 
-#Get Database credentials
-function getAndSetCredentials {
-    echo "Getting an setting parameter store credentials"
-
-    password=$(aws ssm get-parameter --name "$path/password" --with-decryption --query "Parameter.Value" --output text --region $region)
-    username=$(aws ssm get-parameter --name "$path/username" --query "Parameter.Value" --output text --region $region)
-    name=$(aws ssm get-parameter --name "$path/name" --query "Parameter.Value" --output text --region $region)
-}
-
 #Securing MariaDB by automaing what mysql_secure_installtion does behind the sceanes
 #And Creating a new database and user for WordPress
 function configuringMariaDB {
     echo "Configuring MariaDB......."
 
 mysql --user=root <<-EOF
-    UPDATE mysql.user SET Password=PASSWORD('$password') WHERE User='root';
+    UPDATE mysql.user SET Password=PASSWORD('${db_password}') WHERE User='root';
     DELETE FROM mysql.user WHERE User='';
     DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
     DROP DATABASE IF EXISTS test;
     DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
-    CREATE DATABASE $name;
-    CREATE USER '$username'@'localhost' identified by '$password';
-    GRANT ALL ON $name.* TO '$username'@'localhost' identified by '$password';
+    CREATE DATABASE ${db_name};
+    CREATE USER '${db_username}'@'localhost' identified by '${db_password}';
+    GRANT ALL ON ${db_name}.* TO '${db_username}'@'localhost' identified by '${db_password}';
     FLUSH PRIVILEGES;
 EOF
 }
@@ -71,12 +56,13 @@ EOF
 function creatingPhpConfig {
 echo "Creating wp-config.ph...."
 
+#Grab auto generated Salt Keys
 SALTS=$(curl https://api.wordpress.org/secret-key/1.1/salt/)
-cat <<-EOF > /usr/share/nginx/hajr.io/wp-config.php
+cat <<-EOF > /usr/share/nginx/wordpress/wp-config.php
     <?php
-    define( 'DB_NAME', '$name' );
-    define( 'DB_USER', '$username' );
-    define( 'DB_PASSWORD', '$password' );
+    define( 'DB_NAME', '${db_name}' );
+    define( 'DB_USER', '${db_username}' );
+    define( 'DB_PASSWORD', '${db_password}' );
     define( 'DB_HOST', 'localhost' );
     define( 'DB_CHARSET', 'utf8' );
     define( 'DB_COLLATE', '' );
@@ -93,14 +79,15 @@ EOF
 }
 
 
-
-#Running Everything
+#Installing Everything
 installPackages
 installWordPress
 configuringNginx
 #Spining everything
 systemctl enable --now nginx php-fpm mariadb
-getAndSetCredentials
 configuringMariaDB
 creatingPhpConfig
+
+# Run wordpress install ...
+curl -d "weblog_title=${wp_title}&user_name=${wp_username}&admin_password=${wp_password}&admin_password2=${wp_password}&admin_email=${wp_email}" http://$site_url/wp-admin/install.php?step=2
 
