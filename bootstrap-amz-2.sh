@@ -30,7 +30,7 @@ function configuringNginx {
     echo "Configuring Nginx ........"
 
     github_raw_url='https://raw.githubusercontent.com/MohamedHajr/AWS-Wordrpess-Portflio-Automation/master/configurations'
-    curl "$github_raw_url/hajr.io.conf" -o /etc/nginx/conf.d/hajr.io.conf
+    curl "$github_raw_url/wordpress.conf" -o /etc/nginx/conf.d/wordpress.conf
     curl "$github_raw_url/nginx.conf" > /etc/nginx/nginx.conf
 }
 
