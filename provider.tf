@@ -12,7 +12,7 @@ provider "random" {
 }
 
 provider "aws" {
-  region                  = "eu-west-3"
+  region                  = "us-east-1"
   shared_credentials_file = "~/.aws/cred"
-  profile                 = "default"
+  profile                 = "sandbox"
 }

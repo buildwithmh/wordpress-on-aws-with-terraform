@@ -5,7 +5,7 @@ variable "instance_type" {
 
 variable "sg_ingress_ports" {
   type        = list(number)
-  description = "Security groups ports to be configured"
+  description = "inbound Security group ports to be opened"
 }
 
 variable "public_key_name" {
