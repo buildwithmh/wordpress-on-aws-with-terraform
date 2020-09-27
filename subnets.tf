@@ -12,7 +12,7 @@ variable "subnets_cidr_blocks" {
   default     = ["10.0.0.0/26", "10.0.0.64/26", "10.0.0.128/26", "10.0.0.192/26"]
 }
 
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_subnets" {
   count             = 2
   vpc_id            = aws_vpc.wordpress_vpc.id
   cidr_block        = var.subnets_cidr_blocks[count.index]
@@ -26,7 +26,7 @@ resource "aws_subnet" "public_subnet" {
 
 
 
-resource "aws_subnet" "private_subnet" {
+resource "aws_subnet" "private_subnets" {
   count             = 2
   vpc_id            = aws_vpc.wordpress_vpc.id
   cidr_block        = var.subnets_cidr_blocks[count.index + 2]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 region="eu-west-3"
-site_url=$(curl "http://169.254.169.254/latest/meta-data/public-ipv4")
+site_url=$(curl "http://169.254.169.254/latest/meta-data/local-ipv4")
 
 #Update and install LEMP stack packages and dependencies for WordPress
 function installPackages {

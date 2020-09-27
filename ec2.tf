@@ -30,34 +30,62 @@ resource "aws_key_pair" "public_key" {
   public_key = file(var.public_key_path)
 }
 
-resource "aws_instance" "bastion" {
-  count                       = 2
-  ami                         = data.aws_ami.amzn_linux_2.id
-  instance_type               = var.instance_type
-  vpc_security_group_ids      = [aws_security_group.ssh_and_http_sg.id]
-  key_name                    = var.public_key_name
-  iam_instance_profile        = aws_iam_instance_profile.parameter_store_profile.name
-  subnet_id                   = aws_subnet.public_subnet[count.index].id
-  associate_public_ip_address = true
+resource "aws_launch_template" "bastion_lt" {
+  name          = "bastion_lt"
+  description   = "Launch Template for the Bastion instances"
+  image_id      = data.aws_ami.amzn_linux_2.id
+  instance_type = var.instance_type
+  key_name      = var.public_key_name
 
-  tags = {
-    Name = "bastion-${count.index}"
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.bastion-sg.id]
   }
 }
 
-resource "aws_instance" "wordpress" {
-  count                       = 2
-  ami                         = data.aws_ami.amzn_linux_2.id
-  instance_type               = var.instance_type
-  vpc_security_group_ids      = [aws_security_group.ssh_and_http_sg.id]
-  key_name                    = var.public_key_name
-  iam_instance_profile        = aws_iam_instance_profile.parameter_store_profile.name
-  subnet_id                   = aws_subnet.private_subnet[count.index].id
-  associate_public_ip_address = true
-  user_data                   = templatefile("./bootstrap-amz-2.sh", local.credentials)
+resource "aws_autoscaling_group" "bastion_asg" {
+  name                = "bastion-asg"
+  desired_capacity    = 1
+  min_size            = 1
+  max_size            = 2
+  vpc_zone_identifier = aws_subnet.public_subnets[*].id
 
-  tags = {
-    Name = "bastion-${count.index}"
+
+  launch_template {
+    id      = aws_launch_template.bastion_lt.id
+    version = "$Latest"
   }
 }
 
+resource "aws_launch_template" "wordpress_lt" {
+  name          = "wordpress_lt"
+  description   = "Launch Template for the WordPress instances"
+  image_id      = data.aws_ami.amzn_linux_2.id
+  instance_type = var.instance_type
+  key_name      = var.public_key_name
+  user_data     = base64encode(templatefile("./scripts/bootstrap-amz-2.sh", local.credentials))
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.parameter_store_profile.name
+  }
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.wordpress-sg.id]
+  }
+}
+
+resource "aws_autoscaling_group" "wordpress_asg" {
+  name                = "wordpress-asg"
+  desired_capacity    = 2
+  min_size            = 2
+  max_size            = 4
+  vpc_zone_identifier = aws_subnet.private_subnets[*].id
+  target_group_arns   = [aws_lb_target_group.wordpress_tg.arn]
+
+
+  launch_template {
+    id      = aws_launch_template.wordpress_lt.id
+    version = "$Latest"
+  }
+}

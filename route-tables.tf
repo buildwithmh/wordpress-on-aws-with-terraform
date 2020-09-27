@@ -14,12 +14,12 @@ resource "aws_route_table" "public_rt" {
 
 resource "aws_route_table_association" "public-rt-as" {
   count          = 2
-  subnet_id      = aws_subnet.public_subnet[count.index].id
+  subnet_id      = aws_subnet.public_subnets[count.index].id
   route_table_id = aws_route_table.public_rt.id
 }
 
 
-resource "aws_route_table" "private" {
+resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.wordpress_vpc.id
   count  = 2
 
@@ -32,4 +32,10 @@ resource "aws_route_table" "private" {
     Name = "private-rt-${count.index}"
     env  = var.env
   }
+}
+
+resource "aws_route_table_association" "private-rt-as" {
+  count          = 2
+  subnet_id      = aws_subnet.private_subnets[count.index].id
+  route_table_id = aws_route_table.private_rt[count.index].id
 }

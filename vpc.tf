@@ -26,33 +26,9 @@ resource "aws_eip" "eip" {
 resource "aws_nat_gateway" "nat" {
   count         = 2
   allocation_id = aws_eip.eip[count.index].id
-  subnet_id     = aws_subnet.public_subnet[count.index].id
+  subnet_id     = aws_subnet.public_subnets[count.index].id
   tags = {
     Name = format("%s-nat-gw", local.azs[count.index])
     Env  = var.env
-  }
-}
-
-resource "aws_security_group" "ssh_and_http_sg" {
-  name        = "ssh-http-sg"
-  description = "Allow SHH & HTTP traffic from any source to the instance"
-  vpc_id      = aws_vpc.wordpress_vpc.id
-
-  dynamic "ingress" {
-    for_each = var.sg_ingress_ports
-    iterator = port
-    content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 }
