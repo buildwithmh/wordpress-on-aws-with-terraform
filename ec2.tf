@@ -56,6 +56,11 @@ resource "aws_autoscaling_group" "bastion_asg" {
     id      = aws_launch_template.bastion_lt.id
     version = "$Latest"
   }
+  tag {
+    key                 = "Name"
+    value               = "bastion-asg"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_launch_template" "wordpress_lt" {
@@ -82,10 +87,17 @@ resource "aws_autoscaling_group" "wordpress_asg" {
   max_size            = 4
   vpc_zone_identifier = aws_subnet.private_subnets[*].id
   target_group_arns   = [aws_lb_target_group.wordpress_tg.arn]
+  health_check_type   = "ELB"
 
 
   launch_template {
     id      = aws_launch_template.wordpress_lt.id
     version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "wordpress-asg"
+    propagate_at_launch = true
   }
 }

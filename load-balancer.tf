@@ -16,6 +16,16 @@ resource "aws_lb_target_group" "wordpress_tg" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.wordpress_vpc.id
+
+  health_check {
+    interval            = 30
+    path                = "/"
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 5
+    unhealthy_threshold = 3
+    matcher             = "200"
+  }
 }
 
 resource "aws_lb_listener" "http_listner" {
@@ -29,19 +39,3 @@ resource "aws_lb_listener" "http_listner" {
   }
 }
 
-resource "aws_lb_listener_rule" "static" {
-  listener_arn = aws_lb_listener.http_listner.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.wordpress_tg.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["*"]
-    }
-  }
-
-}
