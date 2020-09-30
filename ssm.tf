@@ -62,3 +62,10 @@ resource "aws_ssm_parameter" "wp_email" {
   value       = var.wp_admin_email
 }
 
+resource "aws_ssm_parameter" "site_url" {
+  name        = format("/%s/wordpress/site_url", var.env)
+  description = "WordPress site url"
+  type        = "String"
+  value       = format("http://%s", aws_lb.wordpress_lb.dns_name)
+}
+

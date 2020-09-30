@@ -22,6 +22,7 @@ locals {
     wp_username = aws_ssm_parameter.wp_username.value
     wp_password = aws_ssm_parameter.wp_password.value
     wp_email    = aws_ssm_parameter.wp_email.value
+    site_url    = aws_ssm_parameter.site_url.value
   }
 }
 
@@ -70,8 +71,7 @@ resource "aws_launch_template" "wordpress_lt" {
   }
 
   network_interfaces {
-    associate_public_ip_address = true
-    security_groups             = [aws_security_group.wordpress-sg.id]
+    security_groups = [aws_security_group.wordpress-sg.id]
   }
 }
 

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-region="eu-west-3"
-site_url=$(curl "http://169.254.169.254/latest/meta-data/local-ipv4")
-
-#Update and install LEMP stack packages and dependencies for WordPress
 function installPackages {
     yum update -y
     amazon-linux-extras install php7.2 nginx1 lamp-mariadb10.2-php7.2 -y
@@ -23,6 +19,11 @@ function installWordPress {
     find . -type d -exec chmod 755 {} \;
     find . -type f -exec chmod 644 {} \;
     chown -R nginx:nginx wp-content
+
+    #installing wp-cli
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
 }
 
 #downloanding and overwriting the  Nginx configuration files 
@@ -89,5 +90,8 @@ configuringMariaDB
 creatingPhpConfig
 
 # Run wordpress install ...
-curl -d "weblog_title=${wp_title}&user_name=${wp_username}&admin_password=${wp_password}&admin_password2=${wp_password}&admin_email=${wp_email}" http://$site_url/wp-admin/install.php?step=2
+cd /usr/share/nginx/wordpress
+wp core install --url=${site_url} --title="${wp_title}" --admin_user=${wp_username} --admin_password=${wp_password} --admin_email=${wp_email}
+
+#curl -d "weblog_title=${wp_title}&user_name=${wp_username}&admin_password=${wp_password}&admin_password2=${wp_password}&admin_email=${wp_email}" http://$site_url/wp-admin/install.php?step=2
 

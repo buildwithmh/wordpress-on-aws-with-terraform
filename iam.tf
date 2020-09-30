@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 data "aws_iam_policy_document" "parameter-store-document" {
   statement {
     effect    = "Allow"
-    actions   = ["ssm:GetParameters", "ssm:GetParameter", "ssm:GetParameterByPath"]
+    actions   = ["ssm:GetParameters", "ssm:GetParameter", "ssm:GetParametersByPath"]
     resources = ["*"]
   }
 }

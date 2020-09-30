@@ -4,7 +4,7 @@ resource "aws_lb" "wordpress_lb" {
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.lb_sg.id]
   subnets                    = aws_subnet.public_subnets.*.id
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Environment = var.env
@@ -27,4 +27,21 @@ resource "aws_lb_listener" "http_listner" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.wordpress_tg.arn
   }
+}
+
+resource "aws_lb_listener_rule" "static" {
+  listener_arn = aws_lb_listener.http_listner.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.wordpress_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+
 }
