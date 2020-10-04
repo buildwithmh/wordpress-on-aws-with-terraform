@@ -1,6 +1,6 @@
 # (🚧 WIP) Hosting a Wordpress infrastucture on AWS with Terraform  #
 
-This project was inspired from (Hosting WordPress on AWS)[https://github.com/aws-samples/aws-refarch-wordpress] as a menas of applying some of the study material for the soultion architect associate exam and HashiCorp Certified Terraform associate.
+This project was inspired from [Hosting WordPress on AWS](https://github.com/aws-samples/aws-refarch-wordpress) as a menas of applying some of the study material for both the AWS Soultion Architect Associate exam and HashiCorp Certified Terraform Associate.
 
 ## Objective ##
 - Automating infrastructure provisioning on AWS using Terraform for the following services
