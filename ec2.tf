@@ -18,6 +18,7 @@ locals {
     db_name     = aws_ssm_parameter.db_name.value
     db_username = aws_ssm_parameter.db_username.value
     db_password = aws_ssm_parameter.db_password.value
+    db_host     = aws_rds_cluster.wordpress_db_cluster.endpoint
     wp_title    = aws_ssm_parameter.wp_title.value
     wp_username = aws_ssm_parameter.wp_username.value
     wp_password = aws_ssm_parameter.wp_password.value
@@ -76,7 +77,7 @@ resource "aws_launch_template" "wordpress_lt" {
   }
 
   network_interfaces {
-    security_groups = [aws_security_group.wordpress-sg.id]
+    security_groups = [aws_security_group.wordpress_sg.id]
   }
 }
 

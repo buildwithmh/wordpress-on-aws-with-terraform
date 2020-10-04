@@ -26,5 +26,9 @@ echo "Allowing SSH & HTTP traffic on $sg_id......"
 aws ec2 authorize-security-group-ingress --group-id $sg_id --protocol tcp --port 22 --cidr 0.0.0.0/0 --region $region >> /dev/null
 aws ec2 authorize-security-group-ingress --group-id $sg_id --protocol tcp --port 80 --cidr 0.0.0.0/0 --region $region >> /dev/null
 
+#creating IAM role for ec2 to have access to parameter store
+aws iam create-role --role-name ps-access --assume-role-policy-document file://policies/trust-policy.json
+aws iam put-role-policy --role-name ps-access --policy-name param-store-access-policy --policy-document file://policies/parameter-store-access.json
+
 echo "Launching the instance....."
 aws ec2 run-instances --image-id $ami_id --iam-instance-profile Name="ps-access" --count 1 --instance-type t2.micro --key-name $key_pair_name --security-group-ids $sg_id --user-data file://bootstrap.sh --region $region 

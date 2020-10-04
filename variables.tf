@@ -58,3 +58,8 @@ variable "db_engine_version" {
   description = "The version of the engine running on the DB instance"
 }
 
+variable "db_port" {
+  type        = number
+  description = "The port that the DB engine listening on"
+}
+

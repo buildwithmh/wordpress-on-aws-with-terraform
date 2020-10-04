@@ -1,8 +1,8 @@
 #Gnerate Random username and password
 resource "random_string" "username" {
-  length           = 16
-  special          = true
-  override_special = "-"
+  length  = 12
+  special = false
+  upper   = false
 }
 
 resource "random_password" "password" {
@@ -25,6 +25,10 @@ resource "aws_ssm_parameter" "db_username" {
   description = "Database username to be created in $db_name database"
   type        = "String"
   value       = random_string.username.result
+}
+
+output "username" {
+  value = aws_ssm_parameter.db_username.value
 }
 
 resource "aws_ssm_parameter" "db_password" {
