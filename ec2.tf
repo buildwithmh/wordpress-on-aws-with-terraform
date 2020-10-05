@@ -15,15 +15,17 @@ data "aws_ami" "amzn_linux_2" {
 
 locals {
   credentials = {
-    db_name     = aws_ssm_parameter.db_name.value
-    db_username = aws_ssm_parameter.db_username.value
-    db_password = aws_ssm_parameter.db_password.value
-    db_host     = aws_rds_cluster.wordpress_db_cluster.endpoint
-    wp_title    = aws_ssm_parameter.wp_title.value
-    wp_username = aws_ssm_parameter.wp_username.value
-    wp_password = aws_ssm_parameter.wp_password.value
-    wp_email    = aws_ssm_parameter.wp_email.value
-    site_url    = aws_ssm_parameter.site_url.value
+    db_name        = aws_ssm_parameter.db_name.value
+    db_username    = aws_ssm_parameter.db_username.value
+    db_password    = aws_ssm_parameter.db_password.value
+    db_host        = aws_rds_cluster.wordpress_db_cluster.endpoint
+    wp_title       = aws_ssm_parameter.wp_title.value
+    wp_username    = aws_ssm_parameter.wp_username.value
+    wp_password    = aws_ssm_parameter.wp_password.value
+    wp_email       = aws_ssm_parameter.wp_email.value
+    site_url       = aws_ssm_parameter.site_url.value
+    region         = var.region
+    file_system_id = aws_efs_file_system.wordpress_fs.id
   }
 }
 
@@ -70,7 +72,7 @@ resource "aws_launch_template" "wordpress_lt" {
   image_id      = data.aws_ami.amzn_linux_2.id
   instance_type = var.instance_type
   key_name      = var.public_key_name
-  user_data     = base64encode(templatefile("./scripts/bootstrap-amz-2.sh", local.credentials))
+  user_data     = base64encode(templatefile("./scripts/bootstrap.sh", local.credentials))
 
   iam_instance_profile {
     name = aws_iam_instance_profile.parameter_store_profile.name

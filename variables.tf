@@ -4,6 +4,13 @@ variable "env" {
   description = "current enviroment pod, dev etc.."
 }
 
+variable "region" {
+  type        = string
+  description = "AWS Region to use"
+  default     = "us-east-1"
+}
+
+
 #EC2 Variables
 variable "instance_type" {
   type    = string
