@@ -11,6 +11,10 @@ resource "aws_lb" "wordpress_lb" {
   }
 }
 
+output "lb_dns_name" {
+  value = aws_lb.wordpress_lb.dns_name
+}
+
 resource "aws_lb_target_group" "wordpress_tg" {
   name     = "wordpress-tg"
   port     = 80

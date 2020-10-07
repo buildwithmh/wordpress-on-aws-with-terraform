@@ -30,16 +30,16 @@ locals {
 }
 
 resource "aws_key_pair" "public_key" {
-  key_name   = var.public_key_name
-  public_key = file(var.public_key_path)
+  key_name   = var.ec2_public_key_name
+  public_key = file(var.ec2_public_key_path)
 }
 
 resource "aws_launch_template" "bastion_lt" {
   name          = "bastion_lt"
   description   = "Launch Template for the Bastion instances"
   image_id      = data.aws_ami.amzn_linux_2.id
-  instance_type = var.instance_type
-  key_name      = var.public_key_name
+  instance_type = var.ec2_instance_type
+  key_name      = var.ec2_public_key_name
 
   network_interfaces {
     associate_public_ip_address = true
@@ -49,9 +49,9 @@ resource "aws_launch_template" "bastion_lt" {
 
 resource "aws_autoscaling_group" "bastion_asg" {
   name                = "bastion-asg"
-  desired_capacity    = 1
-  min_size            = 1
-  max_size            = 2
+  desired_capacity    = var.ec2_bastion_asg_desired_capacity
+  min_size            = var.ec2_bastion_asg_min_capacity
+  max_size            = var.ec2_bastion_asg_max_capacity
   vpc_zone_identifier = aws_subnet.public_subnets[*].id
 
 
@@ -59,6 +59,7 @@ resource "aws_autoscaling_group" "bastion_asg" {
     id      = aws_launch_template.bastion_lt.id
     version = "$Latest"
   }
+
   tag {
     key                 = "Name"
     value               = "bastion-asg"
@@ -70,8 +71,8 @@ resource "aws_launch_template" "wordpress_lt" {
   name          = "wordpress_lt"
   description   = "Launch Template for the WordPress instances"
   image_id      = data.aws_ami.amzn_linux_2.id
-  instance_type = var.instance_type
-  key_name      = var.public_key_name
+  instance_type = var.ec2_instance_type
+  key_name      = var.ec2_public_key_name
   user_data     = base64encode(templatefile("./scripts/bootstrap.sh", local.credentials))
 
   iam_instance_profile {
@@ -84,10 +85,11 @@ resource "aws_launch_template" "wordpress_lt" {
 }
 
 resource "aws_autoscaling_group" "wordpress_asg" {
-  name                = "wordpress-asg"
-  desired_capacity    = 2
-  min_size            = 2
-  max_size            = 4
+  name             = "wordpress-asg"
+  desired_capacity = var.ec2_bastion_asg_desired_capacity
+  min_size         = var.ec2_wordpress_asg_min_capacity
+  max_size         = var.ec2_wordpress_asg_max_capacity
+
   vpc_zone_identifier = aws_subnet.private_subnets[*].id
   target_group_arns   = [aws_lb_target_group.wordpress_tg.arn]
   health_check_type   = "ELB"

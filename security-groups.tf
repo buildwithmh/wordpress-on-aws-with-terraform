@@ -4,7 +4,7 @@ resource "aws_security_group" "wordpress_sg" {
   vpc_id      = aws_vpc.wordpress_vpc.id
 
   dynamic "ingress" {
-    for_each = var.sg_ingress_ports
+    for_each = var.ec2_sg_ingress_ports
     iterator = port
     content {
       from_port   = port.value
@@ -103,4 +103,22 @@ resource "aws_security_group" "efs_sg" {
 }
 
 
+resource "aws_security_group" "memcached_sg" {
+  name        = "memcached_sg"
+  description = "Opening memcached port for wordpress autoscaling group security group"
+  vpc_id      = aws_vpc.wordpress_vpc.id
 
+  ingress {
+    from_port       = var.ec_memcached_port
+    to_port         = var.ec_memcached_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.wordpress_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
