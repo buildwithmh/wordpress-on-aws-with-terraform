@@ -1,7 +1,10 @@
-# (🚧 WIP) Hosting a Highly Available Wordpress infrastucture on AWS with Terraform  #
+# (🚧 WIP) A Highly Available Wordpress infrastucture on AWS with Terraform  #
 
 This project was inspired from [Hosting WordPress on AWS](https://github.com/aws-samples/aws-refarch-wordpress) as a menas of applying some of the study material for both the AWS Soultion Architect Associate exam and HashiCorp Certified Terraform Associate.
 
+## Architecture Diagram ##
+
+![alt architecture diagram](https://github.com/MohamedHajr/wordpress-on-aws-with-terraform/blob/master/assets/architecture.jpeg?raw=true))
 ## Objective ##
 - Automating infrastructure provisioning on AWS using Terraform for the following services
   - Amazon Virtual Private Cloud (VPC)
@@ -20,3 +23,12 @@ This project was inspired from [Hosting WordPress on AWS](https://github.com/aws
   - Amazon Route53 DNS record set (optional)
 
 - LEMP stack and WordPress installation and configuration on EC2
+
+## Requirments to Run This Project ##
+- **Terraform** if you don't have it already you can [Download it here](https://www.terraform.io/downloads.html)
+- **AWS CLI** if you don't have it configured you find the steps to [install then configure it here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html), also if you wish to use another profile than the default one, you will simply need to change the `profile` parameter in `provider.tf`
+
+## Parameters ##
+🚧 WIP
+## Steps to Run ##
+🚧 WIP
